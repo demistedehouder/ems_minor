@@ -30,6 +30,13 @@
   #include <Servo.h>
 #endif
 
+//analog pin 0
+#define PHOTOCELL_PIN A0
+
+//photocell state
+int current = 0;
+int last = -1;
+
 // pin connected to DH22 data line
 #define DATA_PIN 2
 
@@ -42,10 +49,11 @@ Servo servo;
 // create DHT22 instance
 DHT_Unified dht(DATA_PIN, DHT11);
 
-// set up the 'temperature' and 'humidity' feeds
+// set up the feeds
 AdafruitIO_Feed *temperature = io.feed("temperature");
 AdafruitIO_Feed *humidity = io.feed("humidity");
 AdafruitIO_Feed *servo_feed = io.feed("servo");
+AdafruitIO_Feed *analog = io.feed("analog");
 
 void setup() {
 
@@ -94,6 +102,21 @@ void loop() {
 
   sensors_event_t event;
   dht.temperature().getEvent(&event);
+
+  //grab the current state of the photocell
+  current = analogRead(PHOTOCELL_PIN);
+
+  //return if the value hasn't changed
+  if(current == last)
+    return;
+
+  //save the current state to the analog feed
+  Serial.print("sending ->");
+  Serial.println(current);
+  analog->save(current);
+
+  //store last photocell state
+  last = current;
 
   float celsius = event.temperature;
 
