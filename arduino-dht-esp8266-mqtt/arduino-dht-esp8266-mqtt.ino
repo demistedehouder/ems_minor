@@ -5,14 +5,21 @@
 #include "SoftwareSerial.h"
 #include <ThingsBoard.h>
 
-#define WIFI_AP "BZiggoA3CF7F4"
-#define WIFI_PASSWORD "rPkcepn38cQm"
+#define WIFI_AP "Bakker Netwerk"
+#define WIFI_PASSWORD "12frituurbrood21"
 
-#define TOKEN "nulIlMPhQBOzziPdqUoq"
+#define TOKEN "4oC2lJQxmBXxUmdSVpGe"
 
 // DHT
 #define DHTPIN 4
 #define DHTTYPE DHT11
+
+//analog pin 0 for light sensor
+#define PHOTOCELL_PIN A0
+
+//photocell state
+int current = 0;
+int last = -1;
 
 char thingsboardServer[] = "demo.thingsboard.io";
 
@@ -31,7 +38,7 @@ unsigned long lastSend;
 
 void setup() {
   // initialize serial for debugging
-  Serial.begin(9600);
+  Serial.begin(115200);
   dht.begin();
   InitWiFi();
   lastSend = 0;
@@ -56,6 +63,7 @@ void loop() {
 
   if ( millis() - lastSend > 1000 ) { // Update and send only after 1 seconds
     getAndSendTemperatureAndHumidityData();
+    getAndSendLightIntensityData();
     lastSend = millis();
   }
 
@@ -87,6 +95,23 @@ void getAndSendTemperatureAndHumidityData()
 
   tb.sendTelemetryFloat("temperature", temperature);
   tb.sendTelemetryFloat("humidity", humidity);
+}
+
+void getAndSendLightIntensityData()
+{
+  Serial.println("Collecting light intensity data.");
+  
+  //grab the current state of the photocell
+  current = analogRead(PHOTOCELL_PIN);
+
+  //return if the value hasn't changed
+  if(current == last)
+    return;
+    
+  Serial.println("Light intensity");  
+  Serial.println(current);
+  tb.sendTelemetryFloat("light intensity", current);
+  last = current;
 }
 
 void InitWiFi()
