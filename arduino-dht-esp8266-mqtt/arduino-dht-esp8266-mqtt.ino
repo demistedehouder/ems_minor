@@ -6,10 +6,10 @@
 #include <ThingsBoard.h>
 #include <Servo.h>
 
-#define WIFI_AP "Bakker Netwerk"
-#define WIFI_PASSWORD "12frituurbrood21"
+#define WIFI_AP "BZiggoA3CF7F4"
+#define WIFI_PASSWORD "rPkcepn38cQm"
 
-#define TOKEN "4oC2lJQxmBXxUmdSVpGe"
+#define TOKEN "nulIlMPhQBOzziPdqUoq"
 
 // DHT
 #define DHTPIN 4
@@ -17,6 +17,11 @@
 
 //analog pin 0 for light sensor
 #define PHOTOCELL_PIN A0
+
+// Speed of servo position updates
+#define SERVO_UPDATE_INTERVAL 20 
+// Servo Output Pin
+#define SERVO_PIN 9 
 
 //photocell state
 int current = 0;
@@ -37,9 +42,39 @@ SoftwareSerial soft(2, 3); // RX, TX
 int status = WL_IDLE_STATUS;
 unsigned long lastSend;
 
+// Initialize servo
 Servo windowServo;
 
-int pos = 0;    // variable to store the servo position
+// Servo variables
+int minUs = 500;
+int maxUs = 2400;
+int SetPosition = 0; // windowServo Position Setpoint
+int Position = 0; // windowServo current position
+// Control/Timing Variables
+long lastServoTime = 0; // keeps track of timestamp since the last servo update occured
+
+// Processes function for RPC call "getPos"
+RPC_Response getPosition(const RPC_Data &data)
+{
+  Serial.println("Received the get Position Method");
+  return RPC_Response(NULL, SetPosition);
+}
+
+// Processes function for RPC call "setPos"
+RPC_Response setPosition(const RPC_Data &data)
+{
+  Serial.print("Received the Set Position method: ");
+  SetPosition = data;
+  Serial.println(SetPosition);
+  
+  return RPC_Response(NULL, SetPosition);
+}
+
+// RPC Callbacks
+RPC_Callback callbacks[] = {
+  { "setPos", setPosition },
+  { "getPos", getPosition },
+};
 
 void setup() {
   // initialize serial for debugging
@@ -47,7 +82,8 @@ void setup() {
   dht.begin();
   InitWiFi();
   lastSend = 0;
-  windowServo.attach(9);  // attaches the servo on pin 9 to the servo object
+  // Initialize Servo
+  windowServo.attach(SERVO_PIN, minUs, maxUs);
 }
 
 void loop() {
@@ -70,11 +106,20 @@ void loop() {
   if ( millis() - lastSend > 1000 ) { // Update and send only after 1 seconds
     getAndSendTemperatureAndHumidityData();
     getAndSendLightIntensityData();
-    servoSweep();
     lastSend = millis();
   }
-
+#define SERVO_UPDATE_INTERVAL 20 // Speed of servo position updates
   tb.loop();
+}
+
+void updateServo()
+{
+  // Approach the Horizontal set point incrementally and update the servo if applicable
+  if (Position != SetPosition)
+  {
+    Position = SetPosition;
+    windowServo.write(Position);
+  }
 }
 
 void getAndSendTemperatureAndHumidityData()
@@ -121,17 +166,6 @@ void getAndSendLightIntensityData()
   last = current;
 }
 
-void servoSweep(){
-    for (pos = 0; pos <= 180; pos += 1) { // goes from 0 degrees to 180 degrees
-    // in steps of 1 degree
-    windowServo.write(pos);              // tell servo to go to position in variable 'pos'
-    delay(15);                       // waits 15ms for the servo to reach the position
-  }
-  for (pos = 180; pos >= 0; pos -= 1) { // goes from 180 degrees to 0 degrees
-    windowServo.write(pos);              // tell servo to go to position in variable 'pos'
-    delay(15);                       // waits 15ms for the servo to reach the position
-  }
-}
 void InitWiFi()
 {
   // initialize serial for ESP module
