@@ -4,6 +4,7 @@
 #include <WiFiEspUdp.h>
 #include "SoftwareSerial.h"
 #include <ThingsBoard.h>
+#include <Servo.h>
 
 #define WIFI_AP "Bakker Netwerk"
 #define WIFI_PASSWORD "12frituurbrood21"
@@ -36,12 +37,17 @@ SoftwareSerial soft(2, 3); // RX, TX
 int status = WL_IDLE_STATUS;
 unsigned long lastSend;
 
+Servo windowServo;
+
+int pos = 0;    // variable to store the servo position
+
 void setup() {
   // initialize serial for debugging
   Serial.begin(115200);
   dht.begin();
   InitWiFi();
   lastSend = 0;
+  windowServo.attach(9);  // attaches the servo on pin 9 to the servo object
 }
 
 void loop() {
@@ -64,6 +70,7 @@ void loop() {
   if ( millis() - lastSend > 1000 ) { // Update and send only after 1 seconds
     getAndSendTemperatureAndHumidityData();
     getAndSendLightIntensityData();
+    servoSweep();
     lastSend = millis();
   }
 
@@ -114,6 +121,17 @@ void getAndSendLightIntensityData()
   last = current;
 }
 
+void servoSweep(){
+    for (pos = 0; pos <= 180; pos += 1) { // goes from 0 degrees to 180 degrees
+    // in steps of 1 degree
+    windowServo.write(pos);              // tell servo to go to position in variable 'pos'
+    delay(15);                       // waits 15ms for the servo to reach the position
+  }
+  for (pos = 180; pos >= 0; pos -= 1) { // goes from 180 degrees to 0 degrees
+    windowServo.write(pos);              // tell servo to go to position in variable 'pos'
+    delay(15);                       // waits 15ms for the servo to reach the position
+  }
+}
 void InitWiFi()
 {
   // initialize serial for ESP module
