@@ -18,6 +18,9 @@
 //analog pin 0 for light sensor
 #define PHOTOCELL_PIN A0
 
+//Ground humidity sensor
+#define GHUMIDITY_PIN A1
+
 // Speed of servo position updates
 #define SERVO_UPDATE_INTERVAL 20 
 // Servo Output Pin
@@ -26,6 +29,9 @@
 //photocell state
 int current = 0;
 int last = -1;
+
+//ground humidity value
+float gHumidity = 0;
 
 char thingsboardServer[] = "demo.thingsboard.io";
 
@@ -87,6 +93,7 @@ void setup() {
 }
 
 void loop() {
+  delay(2000);
   status = WiFi.status();
   if ( status != WL_CONNECTED) {
     while ( status != WL_CONNECTED) {
@@ -106,9 +113,9 @@ void loop() {
   if ( millis() - lastSend > 1000 ) { // Update and send only after 1 seconds
     getAndSendTemperatureAndHumidityData();
     getAndSendLightIntensityData();
+    getAndSendGroundHumidityData();
     lastSend = millis();
   }
-#define SERVO_UPDATE_INTERVAL 20 // Speed of servo position updates
   tb.loop();
 }
 
@@ -119,7 +126,29 @@ void updateServo()
   {
     Position = SetPosition;
     windowServo.write(Position);
+    Serial.println("Servo position :" + Position);
+    Serial.println("---------------------------------------------");
   }
+}
+
+void getAndSendGroundHumidityData()
+{
+  //loop through output 100 times at a low delay
+  for (int i = 0; i <= 100; i++)
+  {
+    gHumidity = gHumidity + analogRead(GHUMIDITY_PIN);
+    delay(1);
+  }
+
+  //devide output bij 100 to get the average humidity
+  gHumidity = gHumidity/100.0;
+  
+  Serial.println("Collecting ground humidity data.");
+  Serial.print("Ground Humidity: ");  
+  Serial.println(gHumidity);
+  Serial.println("---------------------------------------------");
+  //send data to thingsboard where it can be displayed in a chart
+  tb.sendTelemetryFloat("ground humidity", gHumidity);
 }
 
 void getAndSendTemperatureAndHumidityData()
@@ -144,6 +173,7 @@ void getAndSendTemperatureAndHumidityData()
   Serial.print("Temperature: ");
   Serial.print(temperature);
   Serial.println(" *C ");
+  Serial.println("---------------------------------------------");
 
   tb.sendTelemetryFloat("temperature", temperature);
   tb.sendTelemetryFloat("humidity", humidity);
@@ -160,8 +190,9 @@ void getAndSendLightIntensityData()
   if(current == last)
     return;
     
-  Serial.println("Light intensity");  
+  Serial.print("Light intensity: ");  
   Serial.println(current);
+  Serial.println("---------------------------------------------");
   tb.sendTelemetryFloat("light intensity", current);
   last = current;
 }
