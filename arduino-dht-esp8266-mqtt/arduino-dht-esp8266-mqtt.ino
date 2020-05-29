@@ -4,7 +4,6 @@
 #include <WiFiEspUdp.h>
 #include "SoftwareSerial.h"
 #include <ThingsBoard.h>
-#include <Servo.h>
 
 #define WIFI_AP "BZiggoA3CF7F4"
 #define WIFI_PASSWORD "rPkcepn38cQm"
@@ -20,11 +19,6 @@
 
 //Ground humidity sensor
 #define GHUMIDITY_PIN A1
-
-// Speed of servo position updates
-#define SERVO_UPDATE_INTERVAL 20 
-// Servo Output Pin
-#define SERVO_PIN 9 
 
 //photocell state
 int current = 0;
@@ -48,48 +42,12 @@ SoftwareSerial soft(2, 3); // RX, TX
 int status = WL_IDLE_STATUS;
 unsigned long lastSend;
 
-// Initialize servo
-Servo windowServo;
-
-// Servo variables
-int minUs = 500;
-int maxUs = 2400;
-int SetPosition = 0; // windowServo Position Setpoint
-int Position = 0; // windowServo current position
-// Control/Timing Variables
-long lastServoTime = 0; // keeps track of timestamp since the last servo update occured
-
-// Processes function for RPC call "getPos"
-RPC_Response getPosition(const RPC_Data &data)
-{
-  Serial.println("Received the get Position Method");
-  return RPC_Response(NULL, SetPosition);
-}
-
-// Processes function for RPC call "setPos"
-RPC_Response setPosition(const RPC_Data &data)
-{
-  Serial.print("Received the Set Position method: ");
-  SetPosition = data;
-  Serial.println(SetPosition);
-  
-  return RPC_Response(NULL, SetPosition);
-}
-
-// RPC Callbacks
-RPC_Callback callbacks[] = {
-  { "setPos", setPosition },
-  { "getPos", getPosition },
-};
-
 void setup() {
   // initialize serial for debugging
   Serial.begin(115200);
   dht.begin();
   InitWiFi();
   lastSend = 0;
-  // Initialize Servo
-  windowServo.attach(SERVO_PIN, minUs, maxUs);
 }
 
 void loop() {
@@ -117,18 +75,6 @@ void loop() {
     lastSend = millis();
   }
   tb.loop();
-}
-
-void updateServo()
-{
-  // Approach the Horizontal set point incrementally and update the servo if applicable
-  if (Position != SetPosition)
-  {
-    Position = SetPosition;
-    windowServo.write(Position);
-    Serial.println("Servo position :" + Position);
-    Serial.println("---------------------------------------------");
-  }
 }
 
 void getAndSendGroundHumidityData()
