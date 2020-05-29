@@ -29,6 +29,16 @@ int lightIntensity = 0;
 //ground humidity value
 float gHumidity = 0;
 
+// Digital pin 8 will be used as indicator for the MQ-135 sensor
+int MQ_SENSOR_PIN = 8;
+
+// Analog pin 2 will be used for MQ-135 sensor
+int mqSensor = A2;
+
+// Initial value of sensor set to 0
+int mqSensorValue = 0;
+
+// Set IP for server
 char thingsboardServer[] = "demo.thingsboard.io";
 
 // Initialize the Ethernet client object
@@ -51,6 +61,7 @@ void setup() {
   InitWiFi();
   lastSend = 0;
   pinMode(FAN_PIN, OUTPUT);
+  pinMode(MQ_SENSOR_PIN, OUTPUT);
 }
 
 void loop() {
@@ -75,11 +86,41 @@ void loop() {
     getAndSendTemperatureAndHumidityData();
     getAndSendLightIntensityData();
     getAndSendGroundHumidityData();
+    getAirQualityData();
     lastSend = millis();
   }
   tb.loop();
 }
 
+// Function for getting quality of the air using MQ-135 sensor
+void getAirQualityData()
+{
+  // Read input on analog pin 2
+  mqSensorValue = analogRead(mqSensor);
+  // Divide value by 10 to translate output to %
+  mqSensorValue = mqSensorValue/10;
+
+  // If value gets above 50%, blink the indicator led
+  if(mqSensorValue > 50)
+  {
+    digitalWrite(MQ_SENSOR_PIN, HIGH);
+  }
+  // If value is below 50, don't blink the indicator led
+  else
+  {
+    digitalWrite(MQ_SENSOR_PIN, LOW);
+  }
+
+  Serial.println("Collecting air quality data.");
+  Serial.print("Conductivity: ");  
+  Serial.print( mqSensorValue);
+  Serial.println("%");
+  Serial.println("---------------------------------------------");
+  // Send data to thingsboard where it can be displayed in a chart
+  tb.sendTelemetryFloat("air quality", mqSensorValue);
+}
+
+// Function for getting ground humidity
 void getAndSendGroundHumidityData()
 {
   //loop through output 100 times at a low delay
