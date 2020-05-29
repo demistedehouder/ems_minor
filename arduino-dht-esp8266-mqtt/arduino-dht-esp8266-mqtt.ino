@@ -5,10 +5,10 @@
 #include "SoftwareSerial.h"
 #include <ThingsBoard.h>
 
-#define WIFI_AP "Bakker Netwerk"
-#define WIFI_PASSWORD "12frituurbrood21"
+#define WIFI_AP "BZiggoA3CF7F4"
+#define WIFI_PASSWORD "rPkcepn38cQm"
 
-#define TOKEN "4oC2lJQxmBXxUmdSVpGe"
+#define TOKEN "nulIlMPhQBOzziPdqUoq"
 
 // DHT
 #define DHTPIN 4
@@ -19,6 +19,9 @@
 
 //Ground humidity sensor
 #define GHUMIDITY_PIN A1
+
+//Fan 
+#define FAN_PIN 13
 
 //photocell state
 int lightIntensity = 0;
@@ -47,6 +50,7 @@ void setup() {
   dht.begin();
   InitWiFi();
   lastSend = 0;
+  pinMode(FAN_PIN, OUTPUT);
 }
 
 void loop() {
@@ -109,6 +113,18 @@ void getAndSendTemperatureAndHumidityData()
   if (isnan(humidity) || isnan(temperature)) {
     Serial.println("Failed to read from DHT sensor!");
     return;
+  }
+
+  // If temperature goes above 24 degrees, fan turns on
+  if(temperature > 24)
+  {
+    digitalWrite(FAN_PIN, HIGH);
+  }
+
+  // If temperature goes below 22 degrees, fan turns off
+  if(temperature < 22)
+  {
+    digitalWrite(FAN_PIN, LOW);
   }
 
   Serial.println("Sending data to ThingsBoard:");
