@@ -4,11 +4,14 @@
 #include <WiFiEspUdp.h>
 #include "SoftwareSerial.h"
 #include <ThingsBoard.h>
+#include <Servo.h>
 
-#define WIFI_AP "Bakker Netwerk"
-#define WIFI_PASSWORD "12frituurbrood21"
+// Wifi initialization
+#define WIFI_AP "BZiggoA3CF7F4"
+#define WIFI_PASSWORD "rPkcepn38cQm"
 
-#define TOKEN "4oC2lJQxmBXxUmdSVpGe"
+// Get thingsboard token
+#define TOKEN "nulIlMPhQBOzziPdqUoq"
 
 // DHT
 #define DHTPIN 4
@@ -26,10 +29,10 @@
 //Led strip
 #define LED_STRIP_PIN 10
 
-//photocell state
+// Photocell state
 int lightIntensity = 0;
 
-//ground humidity value
+// Ground humidity value
 float gHumidity = 0;
 
 // Digital pin 8 will be used as indicator for the MQ-135 sensor
@@ -41,6 +44,9 @@ int mqSensor = A2;
 // Initial value of sensor set to 0
 int mqSensorValue = 0;
 
+// Create servo object
+Servo windowServo;
+
 // Set IP for server
 char thingsboardServer[] = "demo.thingsboard.io";
 
@@ -50,10 +56,12 @@ WiFiEspClient espClient;
 // Initialize DHT sensor.
 DHT dht(DHTPIN, DHTTYPE);
 
+// Initialize ESP client
 ThingsBoard tb(espClient);
 
 SoftwareSerial soft(2, 3); // RX, TX
 
+// Wifi vars
 int status = WL_IDLE_STATUS;
 unsigned long lastSend;
 
@@ -65,15 +73,20 @@ void setup() {
   lastSend = 0;
   pinMode(FAN_PIN, OUTPUT);
   pinMode(MQ_SENSOR_PIN, OUTPUT);
+  windowServo.attach(5);
 }
 
 void loop() {
-  delay(2000);
+  
+  delay(1000);
   status = WiFi.status();
+  
+  // While wifi is not yet connected, try to connect
   if ( status != WL_CONNECTED) {
     while ( status != WL_CONNECTED) {
       Serial.print("Attempting to connect to WPA SSID: ");
       Serial.println(WIFI_AP);
+      
       // Connect to WPA/WPA2 network
       status = WiFi.begin(WIFI_AP, WIFI_PASSWORD);
       delay(500);
@@ -84,8 +97,9 @@ void loop() {
   if ( !tb.connected() ) {
     reconnect();
   }
-
-  if ( millis() - lastSend > 1000 ) { // Update and send only after 1 seconds
+  
+  // Update and send only after 1 seconds
+  if ( millis() - lastSend > 1000 ) { 
     getAndSendTemperatureAndHumidityData();
     getAndSendLightIntensityData();
     getAndSendGroundHumidityData();
@@ -112,13 +126,15 @@ void getAirQualityData()
   else
   {
     digitalWrite(MQ_SENSOR_PIN, LOW);
-  }
+  } 
 
+  // Print data in serial monitor
   Serial.println("Collecting air quality data.");
   Serial.print("Conductivity: ");  
   Serial.print( mqSensorValue);
   Serial.println("%");
   Serial.println("---------------------------------------------");
+  
   // Send data to thingsboard where it can be displayed in a chart
   tb.sendTelemetryFloat("air quality", mqSensorValue);
 }
@@ -135,7 +151,8 @@ void getAndSendGroundHumidityData()
 
   //devide output bij 100 to get the average humidity
   gHumidity = gHumidity/100.0;
-  
+
+  // Print data in serial monitor
   Serial.println("Collecting ground humidity data.");
   Serial.print("Ground Humidity: ");  
   Serial.println(gHumidity);
@@ -159,18 +176,21 @@ void getAndSendTemperatureAndHumidityData()
     return;
   }
 
-  // If temperature goes above 24 degrees, fan turns on
+  // If temperature goes above 24 degrees, fan turns on and servo rotates
   if(temperature > 24)
   {
     digitalWrite(FAN_PIN, HIGH);
+    //windowServo.write(90); 
   }
 
-  // If temperature goes below 22 degrees, fan turns off
+  // If temperature goes below 22 degrees, fan turns off and servo rotates
   if(temperature < 22)
   {
     digitalWrite(FAN_PIN, LOW);
+    //windowServo.write(0); 
   }
 
+  // Print data in serial monitor
   Serial.println("Sending data to ThingsBoard:");
   Serial.print("Humidity: ");
   Serial.print(humidity);
@@ -178,6 +198,7 @@ void getAndSendTemperatureAndHumidityData()
   Serial.print("Temperature: ");
   Serial.print(temperature);
   Serial.println(" *C ");
+  Serial.print("Servo state: ");
   Serial.println("---------------------------------------------");
 
   tb.sendTelemetryFloat("temperature", temperature);
@@ -202,7 +223,8 @@ void getAndSendLightIntensityData()
   {
     digitalWrite(LED_STRIP_PIN, LOW);
   }
-    
+
+  // Print data in serial monitor
   Serial.print("Light intensity: ");  
   Serial.println(lightIntensity);
   Serial.println("---------------------------------------------");
