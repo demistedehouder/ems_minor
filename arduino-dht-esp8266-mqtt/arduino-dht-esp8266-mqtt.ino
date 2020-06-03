@@ -70,7 +70,6 @@ void setup() {
   Serial.begin(115200);
   dht.begin();
   InitWiFi();
-  lastSend = 0;
   pinMode(FAN_PIN, OUTPUT);
   pinMode(MQ_SENSOR_PIN, OUTPUT);
   windowServo.attach(5);
@@ -78,7 +77,7 @@ void setup() {
 
 void loop() {
   
-  delay(1000);
+  delay(2000);
   status = WiFi.status();
   
   // While wifi is not yet connected, try to connect
@@ -98,15 +97,11 @@ void loop() {
     reconnect();
   }
   
-  // Update and send only after 1 seconds
-  if ( millis() - lastSend > 1000 ) { 
     getAndSendTemperatureAndHumidityData();
     getAndSendLightIntensityData();
     getAndSendGroundHumidityData();
     getAirQualityData();
-    lastSend = millis();
-  }
-  tb.loop();
+    tb.loop();
 }
 
 // Function for getting quality of the air using MQ-135 sensor
@@ -198,7 +193,6 @@ void getAndSendTemperatureAndHumidityData()
   Serial.print("Temperature: ");
   Serial.print(temperature);
   Serial.println(" *C ");
-  Serial.print("Servo state: ");
   Serial.println("---------------------------------------------");
 
   tb.sendTelemetryFloat("temperature", temperature);
