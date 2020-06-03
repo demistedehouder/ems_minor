@@ -5,10 +5,10 @@
 #include "SoftwareSerial.h"
 #include <ThingsBoard.h>
 
-#define WIFI_AP "BZiggoA3CF7F4"
-#define WIFI_PASSWORD "rPkcepn38cQm"
+#define WIFI_AP "Bakker Netwerk"
+#define WIFI_PASSWORD "12frituurbrood21"
 
-#define TOKEN "nulIlMPhQBOzziPdqUoq"
+#define TOKEN "4oC2lJQxmBXxUmdSVpGe"
 
 // DHT
 #define DHTPIN 4
@@ -22,6 +22,9 @@
 
 //Fan 
 #define FAN_PIN 13
+
+//Led strip
+#define LED_STRIP_PIN 10
 
 //photocell state
 int lightIntensity = 0;
@@ -187,6 +190,18 @@ void getAndSendLightIntensityData()
   
   //grab the current state of the photocell
   lightIntensity = analogRead(PHOTOCELL_PIN);
+
+  //If light intensity is below 400, turn on the led strip
+  if(lightIntensity < 400)
+  {
+    digitalWrite(LED_STRIP_PIN, HIGH);
+  }
+
+  //If light intensity is above 600, turn off the led strip
+  if(lightIntensity > 600)
+  {
+    digitalWrite(LED_STRIP_PIN, LOW);
+  }
     
   Serial.print("Light intensity: ");  
   Serial.println(lightIntensity);
