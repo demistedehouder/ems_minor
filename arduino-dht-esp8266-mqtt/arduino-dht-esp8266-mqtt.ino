@@ -132,7 +132,7 @@ void getAirQualityData()
 
   // Print data in serial monitor
   Serial.println("Collecting air quality data.");
-  Serial.print("Conductivity: ");  
+  Serial.print("Air  Conductivity: ");  
   Serial.print( mqSensorValue);
   Serial.println("%");
   Serial.println("---------------------------------------------");
@@ -151,24 +151,27 @@ void getAndSendGroundConductivityData()
     delay(1);
   }
 
-  //devide output bij 100 to get the average conductivity
+  //devide output by 100 to get the average conductivity
   gConductivity = gConductivity/100.0;
   digitalWrite(WATER_PUMP, LOW);
+
+  // Print data in serial monitor
+  Serial.println("Collecting ground conductivity data.");
+  Serial.print("Ground Conductivity: ");
+  Serial.println(gConductivity);
+  Serial.print("Charging Water Pump ⚡: ");
+  Serial.print(waterCounter*10);
+  Serial.println("%");
+  
   if(waterCounter >= 10){
     if(gConductivity >= 140){
       digitalWrite(WATER_PUMP, HIGH);
-      Serial.println("Water is given");
+      Serial.println("|💧 Water Given 💧|");
     }
     waterCounter = 0;
   } else{
     waterCounter++;
   }
-  // Print data in serial monitor
-  Serial.println("Collecting ground conductivity data.");
-  Serial.print("Ground Conductivity: ");
-  Serial.println(gConductivity);
-  Serial.print("Water timer: ");
-  Serial.println(waterCounter);
   Serial.println("---------------------------------------------");
   //send data to thingsboard where it can be displayed in a chart
   tb.sendTelemetryFloat("ground conductivity", gConductivity);
