@@ -7,11 +7,11 @@
 #include <Servo.h>
 
 // Wifi initialization
-#define WIFI_AP "BZiggoA3CF7F4"
-#define WIFI_PASSWORD "rPkcepn38cQm"
+#define WIFI_AP "Ziggo685F28E"
+#define WIFI_PASSWORD "pn2wR8vsrxTf"
 
 // Get thingsboard token
-#define TOKEN "nulIlMPhQBOzziPdqUoq"
+#define TOKEN "4oC2lJQxmBXxUmdSVpGe"
 
 // DHT
 #define DHTPIN 4
@@ -20,8 +20,8 @@
 //analog pin 0 for light sensor
 #define PHOTOCELL_PIN A0
 
-//Ground humidity sensor
-#define GHUMIDITY_PIN A1
+//Ground Conductivity sensor
+#define GCONDUCTIVITY_PIN A1
 
 //Fan 
 #define FAN_PIN 13
@@ -29,11 +29,14 @@
 //Led strip
 #define LED_STRIP_PIN 10
 
+//Water pump
+#define WATER_PUMP 7
+
 // Photocell state
 int lightIntensity = 0;
 
-// Ground humidity value
-float gHumidity = 0;
+// Ground conductivity value
+float gConductivity = 0;
 
 // Digital pin 8 will be used as indicator for the MQ-135 sensor
 int MQ_SENSOR_PIN = 8;
@@ -43,6 +46,9 @@ int mqSensor = A2;
 
 // Initial value of sensor set to 0
 int mqSensorValue = 0;
+
+// Counter for watering system
+int waterCounter = 0;
 
 // Create servo object
 Servo windowServo;
@@ -72,6 +78,7 @@ void setup() {
   InitWiFi();
   pinMode(FAN_PIN, OUTPUT);
   pinMode(MQ_SENSOR_PIN, OUTPUT);
+  pinMode(WATER_PUMP, OUTPUT);
   windowServo.attach(5);
 }
 
@@ -99,7 +106,7 @@ void loop() {
   
     getAndSendTemperatureAndHumidityData();
     getAndSendLightIntensityData();
-    getAndSendGroundHumidityData();
+    getAndSendGroundConductivityData();
     getAirQualityData();
     tb.loop();
 }
@@ -134,26 +141,37 @@ void getAirQualityData()
   tb.sendTelemetryFloat("air quality", mqSensorValue);
 }
 
-// Function for getting ground humidity
-void getAndSendGroundHumidityData()
+// Function for getting ground conductivity
+void getAndSendGroundConductivityData()
 {
   //loop through output 100 times at a low delay
   for (int i = 0; i <= 100; i++)
   {
-    gHumidity = gHumidity + analogRead(GHUMIDITY_PIN);
+    gConductivity = gConductivity + analogRead(GCONDUCTIVITY_PIN);
     delay(1);
   }
 
-  //devide output bij 100 to get the average humidity
-  gHumidity = gHumidity/100.0;
-
+  //devide output bij 100 to get the average conductivity
+  gConductivity = gConductivity/100.0;
+  digitalWrite(WATER_PUMP, LOW);
+  if(waterCounter >= 10){
+    if(gConductivity >= 140){
+      digitalWrite(WATER_PUMP, HIGH);
+      Serial.println("Water is given");
+    }
+    waterCounter = 0;
+  } else{
+    waterCounter++;
+  }
   // Print data in serial monitor
-  Serial.println("Collecting ground humidity data.");
-  Serial.print("Ground Humidity: ");  
-  Serial.println(gHumidity);
+  Serial.println("Collecting ground conductivity data.");
+  Serial.print("Ground Conductivity: ");
+  Serial.println(gConductivity);
+  Serial.print("Water timer: ");
+  Serial.println(waterCounter);
   Serial.println("---------------------------------------------");
   //send data to thingsboard where it can be displayed in a chart
-  tb.sendTelemetryFloat("ground humidity", gHumidity);
+  tb.sendTelemetryFloat("ground conductivity", gConductivity);
 }
 
 void getAndSendTemperatureAndHumidityData()
