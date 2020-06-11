@@ -31,6 +31,7 @@ uint32_t orange = jewel.Color(255, 128, 0);
 uint32_t yellow = jewel.Color(255, 255, 0);
 uint32_t green = jewel.Color(0, 255, 0);
 uint32_t light_blue = jewel.Color(0, 255, 255);
+uint32_t off = jewel.Color(0, 0, 0);
 
 void setup() {
   // put your setup code here, to run once:
@@ -51,13 +52,13 @@ void loop() {
 
 }
 
-void flowyNeopixel(int wait)
+void flowyNeopixel()
 {
   
 }
 
 // For orange lighting
-void pulsatingNeopixel(int wait)
+void pulsatingNeopixel()
 {
   // Make the lights breathe
   for (int i = 0; i < 65535; i++) {
@@ -72,7 +73,16 @@ void pulsatingNeopixel(int wait)
   }
 }
 
-void flashingNeopixel(int wait)
+void flashingNeopixel()
 {
-  
+  for (int i = 0; i < 65535; i++)
+  {
+    for (int ledNumber=0; ledNumber<LED_COUNT; ledNumber++) {
+      jewel.setPixelColor(ledNumber,red);
+      jewel.show();
+      delay(500);
+      jewel.setPixelColor(ledNumber, off);
+    }
+    
+  }
 }
