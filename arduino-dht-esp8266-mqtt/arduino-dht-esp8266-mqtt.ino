@@ -192,15 +192,15 @@ void getAndSendTemperatureAndHumidityData()
     return;
   }
 
-  // If temperature goes above 24 degrees, fan turns on and servo rotates
-  if(temperature > 24)
+  // If temperature goes above 24 degrees and humidity above 60, fan turns on
+  if(temperature > 24 && humidity > 60)
   {
     digitalWrite(FAN_PIN, HIGH);
     //windowServo.write(90); 
   }
 
-  // If temperature goes below 22 degrees, fan turns off and servo rotates
-  if(temperature < 22)
+  // If temperature goes below 22 degrees and humidity below 50, fan turns off
+  if(temperature < 22 && humidity < 50)
   {
     digitalWrite(FAN_PIN, LOW);
     //windowServo.write(0); 
