@@ -49,16 +49,15 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-
+  pulsatingNeopixel(500);
 }
 
 void flowyNeopixel()
 {
-  
 }
 
 // For orange lighting
-void pulsatingNeopixel()
+void pulsatingNeopixel(int wait)
 {
   // Make the lights breathe
   for (int i = 0; i < 65535; i++) {
@@ -71,8 +70,12 @@ void pulsatingNeopixel()
       jewel.setPixelColor(ledNumber,orange);
     }
   }
+
+  delay(wait);
+  
 }
 
+// For red lighting
 void flashingNeopixel()
 {
   for (int i = 0; i < 65535; i++)
