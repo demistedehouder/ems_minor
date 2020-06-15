@@ -11,7 +11,7 @@
 #define WIFI_PASSWORD "12frituurbrood21"
 
 // Get thingsboard token
-#define TOKEN "4oC2lJQxmBXxUmdSVpGe"
+#define TOKEN "nulIlMPhQBOzziPdqUoq"
 
 // DHT
 #define DHTPIN 4
@@ -95,7 +95,7 @@ void loop() {
       
       // Connect to WPA/WPA2 network
       status = WiFi.begin(WIFI_AP, WIFI_PASSWORD);
-      delay(500);
+      delay(1000);
     }
     Serial.println("Connected to AP");
   }
@@ -105,9 +105,13 @@ void loop() {
   }
   
     getAndSendTemperatureAndHumidityData();
+    delay(50);
     getAndSendLightIntensityData();
+    delay(50);
     getAndSendGroundConductivityData();
+    delay(50);
     getAirQualityData();
+    delay(50);
     tb.loop();
 }
 
