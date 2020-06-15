@@ -168,6 +168,9 @@ void getAndSendGroundConductivityData()
       digitalWrite(WATER_PUMP, HIGH);
       Serial.println("|💧 Water Given 💧|");
     }
+    else{
+      Serial.println("No Water Needed");
+    }
     waterCounter = 0;
   } else{
     waterCounter++;
