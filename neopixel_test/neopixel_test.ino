@@ -1,4 +1,4 @@
-#include <Adafruit_Neopixel.h>
+#include <Adafruit_NeoPixel.h>
 
 #ifdef __AVR__
 
