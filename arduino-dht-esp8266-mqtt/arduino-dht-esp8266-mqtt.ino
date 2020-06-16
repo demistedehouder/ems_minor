@@ -5,13 +5,14 @@
 #include "SoftwareSerial.h"
 #include <ThingsBoard.h>
 #include <Servo.h>
+#include <Adafruit_NeoPixel.h>
 
 // Wifi initialization
-#define WIFI_AP "Bakker Netwerk"
-#define WIFI_PASSWORD "12frituurbrood21"
+#define WIFI_AP "Ziggo685F28E"
+#define WIFI_PASSWORD "pn2wR8vsrxTf"
 
 // Get thingsboard token
-#define TOKEN "nulIlMPhQBOzziPdqUoq"
+#define TOKEN "4oC2lJQxmBXxUmdSVpGe"
 
 // DHT
 #define DHTPIN 4
@@ -31,6 +32,16 @@
 
 //Water pump
 #define WATER_PUMP 7
+
+//Neopixel Jewel
+#define NEOPIXEL_PIN 6
+
+// Amount of leds on the neopixel, starts at 0
+#define LED_COUNT 8
+
+// Variables for neopixel
+float neoSpeed = 0.008;
+float maxBrightness = 255;
 
 // Photocell state
 int lightIntensity = 0;
@@ -67,6 +78,20 @@ ThingsBoard tb(espClient);
 
 SoftwareSerial soft(2, 3); // RX, TX
 
+// Neopixel declaration
+// (led amount, led pin, pixel type flags)
+Adafruit_NeoPixel jewel(LED_COUNT, NEOPIXEL_PIN, NEO_RGBW + NEO_KHZ800);
+
+//Colors for neopixel
+uint32_t green = jewel.Color(255, 0, 0);
+uint32_t white = jewel.Color(255, 255, 255);
+uint32_t dark_white = jewel.Color(23, 23, 23);
+uint32_t orange = jewel.Color(255, 128, 0);
+uint32_t yellow = jewel.Color(255, 255, 0);
+uint32_t red = jewel.Color(0, 255, 0);
+uint32_t light_blue = jewel.Color(0, 255, 255);
+uint32_t off = jewel.Color(0, 0, 0);
+
 // Wifi vars
 int status = WL_IDLE_STATUS;
 unsigned long lastSend;
@@ -80,6 +105,10 @@ void setup() {
   pinMode(MQ_SENSOR_PIN, OUTPUT);
   pinMode(WATER_PUMP, OUTPUT);
   windowServo.attach(5);
+  // Initialize neopixel object
+  jewel.begin();
+  // Turn off pixels immediately 
+  jewel.show();
 }
 
 void loop() {
@@ -105,13 +134,9 @@ void loop() {
   }
   
     getAndSendTemperatureAndHumidityData();
-    delay(50);
     getAndSendLightIntensityData();
-    delay(50);
     getAndSendGroundConductivityData();
-    delay(50);
     getAirQualityData();
-    delay(50);
     tb.loop();
 }
 
@@ -135,12 +160,13 @@ void getAirQualityData()
   } 
 
   // Print data in serial monitor
-  Serial.println("Collecting air quality data.");
   Serial.print("Air  Conductivity: ");  
   Serial.print( mqSensorValue);
   Serial.println("%");
   Serial.println("---------------------------------------------");
-  
+  jewel.fill(green, 0, 8);
+  jewel.setBrightness(240);
+  jewel.show();
   // Send data to thingsboard where it can be displayed in a chart
   tb.sendTelemetryFloat("air quality", mqSensorValue);
 }
@@ -160,7 +186,6 @@ void getAndSendGroundConductivityData()
   digitalWrite(WATER_PUMP, LOW);
 
   // Print data in serial monitor
-  Serial.println("Collecting ground conductivity data.");
   Serial.print("Ground Conductivity: ");
   Serial.println(gConductivity);
   Serial.print("Charging Water Pump ⚡: ");
@@ -168,7 +193,7 @@ void getAndSendGroundConductivityData()
   Serial.println("%");
   
   if(waterCounter >= 10){
-    if(gConductivity >= 140){
+    if(gConductivity >= 150){
       digitalWrite(WATER_PUMP, HIGH);
       Serial.println("|💧 Water Given 💧|");
     }
@@ -180,19 +205,21 @@ void getAndSendGroundConductivityData()
     waterCounter++;
   }
   Serial.println("---------------------------------------------");
+  jewel.fill(green, 0, 8);
+  jewel.setBrightness(180);
+  jewel.show();
   //send data to thingsboard where it can be displayed in a chart
   tb.sendTelemetryFloat("ground conductivity", gConductivity);
 }
 
 void getAndSendTemperatureAndHumidityData()
 {
-  Serial.println("Collecting temperature data.");
 
   // Reading temperature or humidity takes about 250 milliseconds!
   float humidity = dht.readHumidity();
   // Read temperature as Celsius (the default)
   float temperature = dht.readTemperature();
-
+  tb.sendTelemetryFloat("temperature", temperature);
   // Check if any reads failed and exit early (to try again).
   if (isnan(humidity) || isnan(temperature)) {
     Serial.println("Failed to read from DHT sensor!");
@@ -222,15 +249,14 @@ void getAndSendTemperatureAndHumidityData()
   Serial.print(temperature);
   Serial.println(" *C ");
   Serial.println("---------------------------------------------");
-
-  tb.sendTelemetryFloat("temperature", temperature);
+  jewel.fill(green, 0, 8);
+  jewel.setBrightness(50);
+  jewel.show();
   tb.sendTelemetryFloat("humidity", humidity);
 }
 
 void getAndSendLightIntensityData()
 {
-  Serial.println("Collecting light intensity data.");
-  
   //grab the current state of the photocell
   lightIntensity = analogRead(PHOTOCELL_PIN);
 
@@ -251,6 +277,9 @@ void getAndSendLightIntensityData()
   Serial.println(lightIntensity);
   Serial.println("---------------------------------------------");
   tb.sendTelemetryFloat("light intensity", lightIntensity);
+  jewel.fill(green, 0, 8);
+  jewel.setBrightness(120);
+  jewel.show();
 }
 
 void InitWiFi()
