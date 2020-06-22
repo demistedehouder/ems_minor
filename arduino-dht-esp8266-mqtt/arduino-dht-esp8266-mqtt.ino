@@ -115,6 +115,9 @@ void loop() {
   
   delay(2000);
   status = WiFi.status();
+  jewel.fill(off, 0, 8);
+  jewel.setBrightness(100);
+  jewel.show();
   
   // While wifi is not yet connected, try to connect
   if ( status != WL_CONNECTED) {
@@ -134,9 +137,26 @@ void loop() {
   }
   
     getAndSendTemperatureAndHumidityData();
+    jewel.fill(red, 0, 2);
+    jewel.fill(off, 2, 8);
+    jewel.show();
     getAndSendLightIntensityData();
+    jewel.fill(red, 0, 2);
+    jewel.fill(orange, 2, 4);
+    jewel.fill(off, 4, 8);
+    jewel.show();
     getAndSendGroundConductivityData();
+    jewel.fill(red, 0, 2);
+    jewel.fill(orange, 2, 4);
+    jewel.fill(yellow, 4, 6);
+    jewel.fill(off, 6, 8);
+    jewel.show();
     getAirQualityData();
+    jewel.fill(red, 0, 2);
+    jewel.fill(orange, 2, 4);
+    jewel.fill(yellow, 4, 6);
+    jewel.fill(green, 6, 8);
+    jewel.show();
     tb.loop();
 }
 
@@ -164,9 +184,6 @@ void getAirQualityData()
   Serial.print( mqSensorValue);
   Serial.println("%");
   Serial.println("---------------------------------------------");
-  jewel.fill(green, 0, 8);
-  jewel.setBrightness(240);
-  jewel.show();
   // Send data to thingsboard where it can be displayed in a chart
   tb.sendTelemetryFloat("air quality", mqSensorValue);
 }
@@ -205,9 +222,6 @@ void getAndSendGroundConductivityData()
     waterCounter++;
   }
   Serial.println("---------------------------------------------");
-  jewel.fill(green, 0, 8);
-  jewel.setBrightness(180);
-  jewel.show();
   //send data to thingsboard where it can be displayed in a chart
   tb.sendTelemetryFloat("ground conductivity", gConductivity);
 }
@@ -249,9 +263,6 @@ void getAndSendTemperatureAndHumidityData()
   Serial.print(temperature);
   Serial.println(" *C ");
   Serial.println("---------------------------------------------");
-  jewel.fill(green, 0, 8);
-  jewel.setBrightness(50);
-  jewel.show();
   tb.sendTelemetryFloat("humidity", humidity);
 }
 
@@ -277,9 +288,6 @@ void getAndSendLightIntensityData()
   Serial.println(lightIntensity);
   Serial.println("---------------------------------------------");
   tb.sendTelemetryFloat("light intensity", lightIntensity);
-  jewel.fill(green, 0, 8);
-  jewel.setBrightness(120);
-  jewel.show();
 }
 
 void InitWiFi()
