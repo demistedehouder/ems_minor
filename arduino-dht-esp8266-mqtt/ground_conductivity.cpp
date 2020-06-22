@@ -1,54 +1,52 @@
-// Include header file
 #include "ground_conductivity.h"
 
-// Constructor
-FC_28::FC_28(byte pin)
-{
-  this->pin = pin;
-  init();
-}
+//// Ground conductivity value
+//float gConductivity = 0;
+//
+//// Counter for watering system
+//int waterCounter = 0;
 
-// Initialization, set sensor pin to right mode
-void FC_28::init() 
-{
-  pinMode(pin, OUTPUT);
-}
+//Ground Conductivity sensor
+#define GCONDUCTIVITY_PIN A1
+
+//Water pump
+#define WATER_PUMP 7
 
 // Function for getting ground conductivity
-void FC_28::getGroundResistanceData(int groundResistance, int waterPump, ThingsBoard tb)
+void getAndSendGroundConductivityData(float gConductivity, int waterCounter)
 {
   //loop through output 100 times at a low delay
   for (int i = 0; i <= 100; i++)
   {
-    groundSensorValue = groundSensorValue + analogRead(groundResistance);
+    gConductivity = gConductivity + analogRead(GCONDUCTIVITY_PIN);
+    delay(1);
   }
 
   //devide output by 100 to get the average conductivity
-  groundSensorValue = groundSensorValue/100.0;
-  digitalWrite(waterPump, LOW);
+  gConductivity = gConductivity/100.0;
+  digitalWrite(WATER_PUMP, LOW);
 
   // Print data in serial monitor
-  Serial.print("Ground Resistance: ");
-  Serial.println(groundSensorValue);
+  Serial.println("Collecting ground conductivity data.");
+  Serial.print("Ground Conductivity: ");
+  Serial.println(gConductivity);
   Serial.print("Charging Water Pump ⚡: ");
   Serial.print(waterCounter*10);
   Serial.println("%");
-
-  // If water counter gets above 10 and water resistance is above 140, water the plant
+  
   if(waterCounter >= 10){
-    if(groundSensorValue >= 140){
-      digitalWrite(waterPump, HIGH);
+    if(gConductivity >= 140){
+      digitalWrite(WATER_PUMP, HIGH);
       Serial.println("Water Given 💧");
     }
     else{
       Serial.println("No Water Needed 🌊");
     }
-    // Set water to 0 after watering
     waterCounter = 0;
-  }
-  else if(waterCounter < 10){
+  } else{
     waterCounter++;
   }
   Serial.println("---------------------------------------------");
-  tb.sendTelemetryFloat("ground resistance", groundSensorValue);
+  //send data to thingsboard where it can be displayed in a chart
+//  tb.sendTelemetryFloat("ground conductivity", gConductivity);
 }

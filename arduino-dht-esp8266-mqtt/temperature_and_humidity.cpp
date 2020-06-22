@@ -1,25 +1,25 @@
-// Include header file
+#include "DHT.h"
 #include "temperature_and_humidity.h"
+// DHT
+#define DHTPIN 4
+#define DHTTYPE DHT11
 
-// Constructor
-DHT11Object::DHT11Object(byte pin)
-{
-  this->pin = pin;
-  init();
-}
+//Fan 
+#define FAN_PIN 13
 
-// Initialization, set fan pin to the right mode
-void DHT11Object::init() 
-{
-  pinMode(pin, OUTPUT);
-}
+// Initialize DHT sensor.
+DHT dht(DHTPIN, DHTTYPE);
 
 // Function for getting temperature and humidity data
-void DHT11Object::getAndSendTemperatureAndHumidityData(int fanPin, ThingsBoard tb, DHT dht)
-{  
-    float humidity = dht.readHumidity();
-    float temperature = dht.readTemperature();
-  
+void getAndSendTemperatureAndHumidityData()
+{
+  Serial.println("Collecting temperature data.");
+
+  // Reading temperature or humidity takes about 250 milliseconds!
+  float humidity = dht.readHumidity();
+  // Read temperature as Celsius (the default)
+  float temperature = dht.readTemperature();
+
   // Check if any reads failed and exit early (to try again).
   if (isnan(humidity) || isnan(temperature)) {
     Serial.println("Failed to read from DHT sensor!");
@@ -29,18 +29,19 @@ void DHT11Object::getAndSendTemperatureAndHumidityData(int fanPin, ThingsBoard t
   // If temperature goes above 24 degrees and humidity above 60, fan turns on
   if(temperature > 24 && humidity > 60)
   {
-    digitalWrite(fanPin, HIGH);
+    digitalWrite(FAN_PIN, HIGH);
     //windowServo.write(90); 
   }
 
   // If temperature goes below 22 degrees and humidity below 50, fan turns off
   if(temperature < 22 && humidity < 50)
   {
-    digitalWrite(fanPin, LOW);
+    digitalWrite(FAN_PIN, LOW);
     //windowServo.write(0); 
   }
 
   // Print data in serial monitor
+  Serial.println("Sending data to ThingsBoard:");
   Serial.print("Humidity: ");
   Serial.print(humidity);
   Serial.print(" %\t");
@@ -49,6 +50,6 @@ void DHT11Object::getAndSendTemperatureAndHumidityData(int fanPin, ThingsBoard t
   Serial.println(" *C ");
   Serial.println("---------------------------------------------");
 
-  tb.sendTelemetryFloat("temperature", temperature);
-  tb.sendTelemetryFloat("humidity", humidity);
+//  tb.sendTelemetryFloat("temperature", temperature);
+//  tb.sendTelemetryFloat("humidity", humidity);
 }

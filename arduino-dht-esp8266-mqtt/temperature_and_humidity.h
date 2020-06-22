@@ -1,23 +1,8 @@
 #ifndef TEMPERATURE_AND_HUMIDITY_H
-#define TEMPERATURE_AND_HUMIDITY_H// DHT
+#define TEMPERATURE_AND_HUMIDITY_H
 
-// Include necessary libraries
-#include <ThingsBoard.h>
 #include <Arduino.h>
-#include "DHT.h"
 
-// Create DHT11 object class with functions
-class DHT11Object 
-{
-  private:
-    byte pin;
-    
-  public:
-    DHT11Object(byte pin);
-
-    void init();
-    
-    void getAndSendTemperatureAndHumidityData(int fanPin, ThingsBoard tb, DHT dht);
-};
+void getAndSendTemperatureAndHumidityData();
 
 #endif

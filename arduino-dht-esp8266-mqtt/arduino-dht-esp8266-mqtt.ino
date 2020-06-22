@@ -5,7 +5,16 @@
 #include "SoftwareSerial.h"
 #include <ThingsBoard.h>
 #include <Servo.h>
+<<<<<<< HEAD
 #include <Adafruit_NeoPixel.h>
+=======
+
+//#include "ground_conductivity.h"
+//#include "temperature_and_humidity.h"
+//#include "light_intensity.h"
+
+#include "air_quality.h"
+>>>>>>> parent of 8679866... libraries complete
 
 // Wifi initialization
 #define WIFI_AP "Ziggo685F28E"
@@ -21,6 +30,7 @@
 //analog pin 0 for light sensor
 #define PHOTOCELL_PIN A0
 
+<<<<<<< HEAD
 //Ground Conductivity sensor
 #define GCONDUCTIVITY_PIN A1
 
@@ -35,6 +45,10 @@
 
 //Neopixel Jewel
 #define NEOPIXEL_PIN 6
+=======
+// Set IP for server
+char thingsboardServer[] = "demo.thingsboard.io";
+>>>>>>> parent of 8679866... libraries complete
 
 // Amount of leds on the neopixel, starts at 0
 #define LED_COUNT 8
@@ -46,8 +60,14 @@ float maxBrightness = 255;
 // Photocell state
 int lightIntensity = 0;
 
+<<<<<<< HEAD
 // Ground conductivity value
 float gConductivity = 0;
+=======
+// Wifi vars
+int status = WL_IDLE_STATUS;
+unsigned long lastSend;
+>>>>>>> parent of 8679866... libraries complete
 
 // Digital pin 8 will be used as indicator for the MQ-135 sensor
 int MQ_SENSOR_PIN = 8;
@@ -55,6 +75,7 @@ int MQ_SENSOR_PIN = 8;
 // Analog pin 2 will be used for MQ-135 sensor
 int mqSensor = A2;
 
+<<<<<<< HEAD
 // Initial value of sensor set to 0
 int mqSensorValue = 0;
 
@@ -96,11 +117,16 @@ uint32_t off = jewel.Color(0, 0, 0);
 int status = WL_IDLE_STATUS;
 unsigned long lastSend;
 
+=======
+MQ135 airSensor(MQ_SENSOR_PIN);
+
+>>>>>>> parent of 8679866... libraries complete
 void setup() {
   // initialize serial for debugging
   Serial.begin(115200);
-  dht.begin();
+//  dht.begin();
   InitWiFi();
+<<<<<<< HEAD
   pinMode(FAN_PIN, OUTPUT);
   pinMode(MQ_SENSOR_PIN, OUTPUT);
   pinMode(WATER_PUMP, OUTPUT);
@@ -109,6 +135,12 @@ void setup() {
   jewel.begin();
   // Turn off pixels immediately 
   jewel.show();
+=======
+//  pinMode(FAN_PIN, OUTPUT);
+//pinMode(MQ_SENSOR_PIN, OUTPUT);
+//  pinMode(WATER_PUMP, OUTPUT);
+//  windowServo.attach(5);
+>>>>>>> parent of 8679866... libraries complete
 }
 
 void loop() {
@@ -136,6 +168,7 @@ void loop() {
     reconnect();
   }
   
+<<<<<<< HEAD
     getAndSendTemperatureAndHumidityData();
     jewel.fill(red, 0, 2);
     jewel.fill(off, 2, 8);
@@ -288,6 +321,25 @@ void getAndSendLightIntensityData()
   Serial.println(lightIntensity);
   Serial.println("---------------------------------------------");
   tb.sendTelemetryFloat("light intensity", lightIntensity);
+=======
+//    getAndSendTemperatureAndHumidityData();
+//    tb.sendTelemetryFloat("temperature", temperature);
+//    tb.sendTelemetryFloat("humidity", humidity);
+//    
+//    getAndSendLightIntensityData();
+//    tb.sendTelemetryFloat("light intensity", lightIntensity);
+//    
+//    getAndSendGroundConductivityData(0, 0);
+//    tb.sendTelemetryFloat("ground conductivity", gConductivity);
+//    
+//    getAirQualityData();
+//    tb.sendTelemetryFloat("air quality", mqSensorValue);
+
+    airSensor.getAirQualityData(mqSensor);
+    tb.sendTelemetryFloat("air quality", mqSensorValue);
+    
+    tb.loop();
+>>>>>>> parent of 8679866... libraries complete
 }
 
 void InitWiFi()
