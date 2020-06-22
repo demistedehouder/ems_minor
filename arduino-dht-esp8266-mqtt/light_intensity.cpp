@@ -1,37 +1,35 @@
+// Include header file
 #include "light_intensity.h"
 
-//analog pin 0 for light sensor
-#define PHOTOCELL_PIN A0
-
-//Led strip
-#define LED_STRIP_PIN 10
-
-// Photocell state
-int lightIntensity = 0;
+// Constructor
+Photocell::Photocell(byte pin)
+{
+  this->pin = pin;
+}
 
 // Function for getting light intensity data
-void getAndSendLightIntensityData()
+void Photocell::getAndSendLightIntensityData(int photoPin, int ledStripPin, ThingsBoard tb)
 {
   Serial.println("Collecting light intensity data.");
   
   //grab the current state of the photocell
-  lightIntensity = analogRead(PHOTOCELL_PIN);
+  lightValue = analogRead(photoPin);
 
   //If light intensity is below 400, turn on the led strip
-  if(lightIntensity < 400)
+  if(lightValue < 400)
   {
-    digitalWrite(LED_STRIP_PIN, HIGH);
+    digitalWrite(ledStripPin, HIGH);
   }
 
   //If light intensity is above 600, turn off the led strip
-  if(lightIntensity > 600)
+  if(lightValue > 600)
   {
-    digitalWrite(LED_STRIP_PIN, LOW);
+    digitalWrite(ledStripPin, LOW);
   }
 
   // Print data in serial monitor
   Serial.print("Light intensity: ");  
-  Serial.println(lightIntensity);
+  Serial.println(lightValue);
   Serial.println("---------------------------------------------");
-//  tb.sendTelemetryFloat("light intensity", lightIntensity);
+  tb.sendTelemetryFloat("light intensity", lightValue);
 }

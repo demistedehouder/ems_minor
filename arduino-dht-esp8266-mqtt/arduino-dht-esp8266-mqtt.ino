@@ -3,13 +3,12 @@
 #include <WiFiEspUdp.h>
 #include "SoftwareSerial.h"
 #include <ThingsBoard.h>
-#include <Servo.h>
 
-//#include "ground_conductivity.h"
-//#include "temperature_and_humidity.h"
-//#include "light_intensity.h"
-
+// Include selfmade libraries
 #include "air_quality.h"
+#include "ground_conductivity.h"
+#include "light_intensity.h"
+#include "temperature_and_humidity.h"
 
 // Wifi initialization
 #define WIFI_AP "Bakker Netwerk"
@@ -17,6 +16,12 @@
 
 // Get thingsboard token
 #define TOKEN "nulIlMPhQBOzziPdqUoq"
+
+//Ground Conductivity sensor
+int GRESISTANCE_PIN = A1;
+
+//Water pump
+int WATER_PUMP = 7;
 
 // Set IP for server
 char thingsboardServer[] = "demo.thingsboard.io";
@@ -29,7 +34,7 @@ ThingsBoard tb(espClient);
 
 SoftwareSerial soft(2, 3); // RX, TX
 
-// Wifi vars
+// Wifi variables
 int status = WL_IDLE_STATUS;
 unsigned long lastSend;
 
@@ -39,17 +44,35 @@ int MQ_SENSOR_PIN = 8;
 // Analog pin 2 will be used for MQ-135 sensor
 int mqSensor = A2;
 
+//analog pin 0 for light sensor
+#define PHOTOCELL_PIN A0
+
+//Led strip
+#define LED_STRIP_PIN 10
+
+//Fan 
+#define FAN_PIN 13
+
+// Temperature and humidity sensor values
+#define DHTPIN 4
+#define DHTTYPE DHT11
+  
+DHT dht(DHTPIN, DHTTYPE);
+
+// Declare library objects
 MQ135 airSensor(MQ_SENSOR_PIN);
+
+FC_28 groundResistance(WATER_PUMP);
+
+Photocell lightIntensity(PHOTOCELL_PIN);
+
+DHT11Object temperatureAndHumidity(FAN_PIN);
 
 void setup() {
   // initialize serial for debugging
   Serial.begin(115200);
-//  dht.begin();
+  dht.begin();
   InitWiFi();
-//  pinMode(FAN_PIN, OUTPUT);
-//pinMode(MQ_SENSOR_PIN, OUTPUT);
-//  pinMode(WATER_PUMP, OUTPUT);
-//  windowServo.attach(5);
 }
 
 void loop() {
@@ -73,24 +96,14 @@ void loop() {
   if ( !tb.connected() ) {
     reconnect();
   }
-  
-//    getAndSendTemperatureAndHumidityData();
-//    tb.sendTelemetryFloat("temperature", temperature);
-//    tb.sendTelemetryFloat("humidity", humidity);
-//    
-//    getAndSendLightIntensityData();
-//    tb.sendTelemetryFloat("light intensity", lightIntensity);
-//    
-//    getAndSendGroundConductivityData(0, 0);
-//    tb.sendTelemetryFloat("ground conductivity", gConductivity);
-//    
-//    getAirQualityData();
-//    tb.sendTelemetryFloat("air quality", mqSensorValue);
 
-    airSensor.getAirQualityData(mqSensor);
-    tb.sendTelemetryFloat("air quality", mqSensorValue);
+  // Call library functions
+  airSensor.getAirQualityData(mqSensor, tb);
+  groundResistance.getGroundResistanceData(GRESISTANCE_PIN, WATER_PUMP, tb);
+  lightIntensity.getAndSendLightIntensityData(PHOTOCELL_PIN, LED_STRIP_PIN, tb);
+  temperatureAndHumidity.getAndSendTemperatureAndHumidityData(FAN_PIN, tb, dht);
     
-    tb.loop();
+  tb.loop();
 }
 
 void InitWiFi()

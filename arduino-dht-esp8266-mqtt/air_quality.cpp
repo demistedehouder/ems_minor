@@ -1,19 +1,21 @@
+// Include header file
 #include "air_quality.h"
 
+// Constructor
 MQ135::MQ135(byte pin)
 {
   this->pin = pin;
   init();
 }
 
+// Initialization, set sensor pin to right mode
 void MQ135::init() 
 {
   pinMode(pin, OUTPUT);
 }
 
-int mqSensorValue = 0;
-
-int MQ135::getAirQualityData(int mqSensor)
+// Function for getting and sending sensor value
+int MQ135::getAirQualityData(int mqSensor, ThingsBoard tb)
 {
   
   // Read input on analog pin 2
@@ -38,7 +40,7 @@ int MQ135::getAirQualityData(int mqSensor)
   Serial.print( mqSensorValue);
   Serial.println("%");
   Serial.println("---------------------------------------------");
-
+  tb.sendTelemetryFloat("air quality", mqSensorValue);
   return mqSensorValue;
   
   // Send data to thingsboard where it can be displayed in a chart
