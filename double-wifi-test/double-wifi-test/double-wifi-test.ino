@@ -7,8 +7,8 @@
 #include <Servo.h>
 
 // Wifi initialization
-#define WIFI_AP_1 "Ziggo685F28E"
-#define WIFI_PASSWORD_1 "pn2wR8vsrxTf"
+#define WIFI_AP_1 "Bakker Netwerk"
+#define WIFI_PASSWORD_1 "12frituurbrood21"
 
 // Get thingsboard token
 #define TOKEN "4oC2lJQxmBXxUmdSVpGe"

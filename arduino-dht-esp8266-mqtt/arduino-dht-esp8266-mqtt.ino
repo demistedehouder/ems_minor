@@ -3,6 +3,7 @@
 #include <WiFiEspUdp.h>
 #include "SoftwareSerial.h"
 #include <ThingsBoard.h>
+#include <NeoPatterns.h>
 
 // Include selfmade libraries
 #include "air_quality.h"
@@ -50,6 +51,9 @@ int mqSensor = A2;
 //Led strip
 #define LED_STRIP_PIN 10
 
+//NEOPIXEL
+#define PIN_NEOPIXEL_JEWEL 6
+
 //Fan 
 #define FAN_PIN 13
 
@@ -58,6 +62,9 @@ int mqSensor = A2;
 #define DHTTYPE DHT11
   
 DHT dht(DHTPIN, DHTTYPE);
+
+// The NeoPatterns instances
+NeoPatterns jewel = NeoPatterns(7, PIN_NEOPIXEL_JEWEL, NEO_RGBW + NEO_KHZ800);
 
 // Declare library objects
 MQ135 airSensor(MQ_SENSOR_PIN);
@@ -73,11 +80,12 @@ void setup() {
   Serial.begin(115200);
   dht.begin();
   InitWiFi();
+  jewel.begin(); // This sets the pin.
 }
 
 void loop() {
   
-  delay(5000);
+  delay(2000);
   status = WiFi.status();
   
   // While wifi is not yet connected, try to connect
@@ -97,13 +105,21 @@ void loop() {
     reconnect();
   }
 
-// Call library functions
   airSensor.getAirQualityData(mqSensor, tb);
+  NeoAnimation(0, 255, 0);
   groundResistance.getGroundResistanceData(GRESISTANCE_PIN, WATER_PUMP, tb);
+  NeoAnimation(125, 255, 0);
   lightIntensity.getAndSendLightIntensityData(PHOTOCELL_PIN, LED_STRIP_PIN, tb);
+  NeoAnimation(255, 125, 0);
   temperatureAndHumidity.getAndSendTemperatureAndHumidityData(FAN_PIN, tb, dht);
+  NeoAnimation(255, 0, 0);
     
   tb.loop();
+}
+
+void NeoAnimation(int green, int red, int blue){
+  jewel.ColorWipe(jewel.Color(green, red, blue), 50, 18);
+  jewel.updateAndWaitForPatternToStop();
 }
 
 void InitWiFi()
