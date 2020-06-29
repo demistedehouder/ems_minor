@@ -36,9 +36,9 @@ void MQ135::getAirQualityData(int mqSensor, ThingsBoard tb)
 
   // Print data in serial monitor
   Serial.println("Collecting air quality data.");
-  Serial.print("Air  Conductivity: ");  
+  Serial.print("Air Resistance: ");  
   Serial.print( mqSensorValue);
   Serial.println("%");
   Serial.println("---------------------------------------------");
-  tb.sendTelemetryFloat("air quality", mqSensorValue);
+  tb.sendTelemetryFloat("air resistance", mqSensorValue);
 }

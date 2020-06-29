@@ -16,7 +16,7 @@
 #define WIFI_PASSWORD "12frituurbrood21"
 
 // Get thingsboard token
-#define TOKEN "4oC2lJQxmBXxUmdSVpGe"
+#define TOKEN "AX2c6NznHp82T68MIi0S"
 
 //Ground Conductivity sensor
 int GRESISTANCE_PIN = A1;

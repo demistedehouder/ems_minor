@@ -36,7 +36,7 @@ void FC_28::getGroundResistanceData(int groundResistance, int waterPump, ThingsB
 
   // If water counter gets above 10 and water resistance is above 140, water the plant
   if(waterCounter >= 10){
-    if(groundSensorValue >= 160){
+    if(groundSensorValue >= 140){
       digitalWrite(waterPump, HIGH);
       Serial.println("Water Given 💧");
     }
