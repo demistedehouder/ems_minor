@@ -23,12 +23,12 @@ void MQ135::getAirQualityData(int mqSensor, ThingsBoard tb)
   // Divide value by 10 to translate output to %
   mqSensorValue = mqSensorValue/10;
 
-  // If value gets above 50%, blink the indicator led
-  if(mqSensorValue > 50)
+  // If value gets above 20%, turn on the indicator led
+  if(mqSensorValue > 20)
   {
     digitalWrite(pin, HIGH);
   }
-  // If value is below 50, don't blink the indicator led
+  // If value is below 20, don't turn on the indicator led
   else
   {
     digitalWrite(pin, LOW);

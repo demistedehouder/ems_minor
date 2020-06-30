@@ -27,14 +27,14 @@ void DHT11Object::getAndSendTemperatureAndHumidityData(int fanPin, ThingsBoard t
     return;
   }
 
-  // If temperature goes above 24 degrees and humidity above 60, fan turns on
+  // If temperature goes above 24 degrees and humidity above 50, fan turns on
   if(temperature > 24 && humidity > 50)
   {
     digitalWrite(fanPin, HIGH);
     //windowServo.write(90); 
   }
 
-  // If temperature goes below 22 degrees and humidity below 50, fan turns off
+  // If temperature goes below 22 degrees and humidity below 40, fan turns off
   if(temperature < 22 && humidity < 40)
   {
     digitalWrite(fanPin, LOW);

@@ -33,7 +33,8 @@ WiFiEspClient espClient;
 // Initialize ESP client
 ThingsBoard tb(espClient);
 
-SoftwareSerial soft(2, 3); // RX, TX
+// RX, TX
+SoftwareSerial soft(2, 3); 
 
 // Wifi variables
 int status = WL_IDLE_STATUS;
@@ -51,16 +52,17 @@ int mqSensor = A2;
 //Led strip
 #define LED_STRIP_PIN 10
 
-//NEOPIXEL
+// Neopixel
 #define PIN_NEOPIXEL_JEWEL 6
 
-//Fan 
+// Fan 
 #define FAN_PIN 13
 
 // Temperature and humidity sensor values
 #define DHTPIN 4
 #define DHTTYPE DHT11
-  
+
+// Initializing DHT sensor
 DHT dht(DHTPIN, DHTTYPE);
 
 // The NeoPatterns instances
@@ -78,13 +80,13 @@ DHT11Object temperatureAndHumidity(FAN_PIN);
 void setup() {
   // initialize serial for debugging
   Serial.begin(115200);
-  dht.begin();
+  dht.begin(); // This sets the pin
   InitWiFi();
-  jewel.begin(); // This sets the pin.
+  jewel.begin(); // This sets the pin
 }
 
 void loop() {
-  
+  // Set loop delay
   delay(2000);
   status = WiFi.status();
   
@@ -105,7 +107,9 @@ void loop() {
     reconnect();
   }
 
+  // Call library functions 
   airSensor.getAirQualityData(mqSensor, tb);
+  // Set colors of Neopixel after every library call
   NeoAnimation(0, 255, 0);
   groundResistance.getGroundResistanceData(GRESISTANCE_PIN, WATER_PUMP, tb);
   NeoAnimation(125, 255, 0);
@@ -117,11 +121,13 @@ void loop() {
   tb.loop();
 }
 
+// Neopixel animation function
 void NeoAnimation(int green, int red, int blue){
   jewel.ColorWipe(jewel.Color(green, red, blue), 50, 18);
   jewel.updateAndWaitForPatternToStop();
 }
 
+// WiFi initialization function
 void InitWiFi()
 {
   // initialize serial for ESP module
@@ -147,6 +153,7 @@ void InitWiFi()
   Serial.println("Connected to AP");
 }
 
+// Reconnect to WiFi function
 void reconnect() {
   // Loop until we're reconnected
   while (!tb.connected()) {

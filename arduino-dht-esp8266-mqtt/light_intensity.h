@@ -12,11 +12,11 @@ class Photocell
     byte pin;
     
     int lightValue = 0;
-
-
+    
   public:
     Photocell(byte pin);
-    
+
+    // Function takes parameters from main file
     void getAndSendLightIntensityData(int photoPin, int ledStripPin, ThingsBoard tb); 
 };
 

@@ -18,6 +18,7 @@ class MQ135
 
     void init();
 
+    // Function takes parameters from main file
     void getAirQualityData(int mqSensor, ThingsBoard tb);
 };
 

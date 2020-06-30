@@ -20,6 +20,7 @@ class FC_28
  
     void init();
 
+    // Function takes parameters from main file
     void getGroundResistanceData(int groundResistance, int waterPump, ThingsBoard tb);
 };
 

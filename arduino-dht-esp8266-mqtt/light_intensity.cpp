@@ -19,8 +19,8 @@ void Photocell::getAndSendLightIntensityData(int photoPin, int ledStripPin, Thin
     digitalWrite(ledStripPin, HIGH);
   }
 
-  //If light intensity is above 600, turn off the led strip
-  if(lightValue > 600)
+  //If light intensity is above 700, turn off the led strip
+  if(lightValue > 700)
   {
     digitalWrite(ledStripPin, LOW);
   }
