@@ -1,5 +1,5 @@
 // Include header file
-#include "ground_conductivity.h"
+#include "ground_resistance.h"
 
 // Constructor
 FC_28::FC_28(byte pin)

@@ -1,5 +1,5 @@
-#ifndef GROUND_CONDUCTIVITY_H
-#define GROUND_CONDUCTIVITY_H
+#ifndef GROUND_RESISTANCE_H
+#define GROUND_RESISTANCE_H
 
 // Include necessary libraries
 #include <ThingsBoard.h>

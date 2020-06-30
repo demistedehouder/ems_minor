@@ -7,7 +7,7 @@
 
 // Include selfmade libraries
 #include "air_quality.h"
-#include "ground_conductivity.h"
+#include "ground_resistance.h"
 #include "light_intensity.h"
 #include "temperature_and_humidity.h"
 
